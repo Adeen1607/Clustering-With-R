@@ -1,0 +1,1 @@
+The original report selected **four milk/frozen spending clusters** after inspecting k=3, 4 and 5. This is a documented interpretability choice. The source Dataset.txt is missing, so no refreshed inertia, silhouette score or customer counts are claimed.

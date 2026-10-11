@@ -8,11 +8,13 @@
 
 # Load necessary libraries
 library(ggplot2)
+library(dplyr) # select, mutate, group_by, and summarise are used below
 library("pastecs") # For statistical analysis
 library("lattice") # For improved graphical representations
 
 #set work directory
-setwd("C:/Users/Adeen/Desktop/R scripts/")
+# Run from the repository root. Supply the original course Dataset.txt here.
+# Standardization makes the spending scales comparable; it is not an outlier fix.
 
 # Load the data from the file
 df <- read.csv(file = "Dataset.txt", header = TRUE)
@@ -46,7 +48,7 @@ for(col2 in names(df)) {
 }
 
 # 3. standardize all variables
-df_standardized <- as.data.frame(scale(df))
+df_standardized <- as.data.frame(scale(df[, vapply(df, is.numeric, logical(1)), drop = FALSE]))
 head(df_standardized,4)
 # TASK 2. K means clustering
 
@@ -54,6 +56,7 @@ head(df_standardized,4)
 df_cluster <- select(df_standardized, Milk_MS, Froz_MS )
 
 # 2. Creating wss plots
+set.seed(123) # Repeatable exploratory fits
 wss_values <- sapply(2:7, function(k){
   kmeans(df_cluster, centers = k, nstart = 20)$tot.withinss
 })
@@ -129,7 +132,7 @@ centers$cluster <- factor(1:k_optimal)
 
 cluster_labels <- data.frame(
   cluster = factor(1:k_optimal),
-  label = c(" Low Milk / Low forzen ", "High Milk / Low frozen", "Low Milk/ High Frozen", "High Milk / High Frozen"))
+  label = paste0(ifelse(centers$Milk_MS >= 0, "Above-mean milk", "Below-mean milk"), " / ", ifelse(centers$Froz_MS >= 0, "above-mean frozen", "below-mean frozen")))
 
 # Merge cluster centers with labels
 centers <- merge(centers, cluster_labels, by = "cluster") 
